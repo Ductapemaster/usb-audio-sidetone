@@ -25,4 +25,12 @@ clang -framework CoreAudio \
 # Copy Info.plist
 cp Info.plist "$APP/Contents/Info.plist"
 
+# Generate app icon
+clang -framework AppKit -framework Foundation -fobjc-arc \
+      -mmacosx-version-min=13.0 \
+      -o make_icon make_icon.m
+./make_icon
+iconutil -c icns AppIcon.iconset -o "$RESOURCES/AppIcon.icns"
+rm -rf AppIcon.iconset make_icon
+
 echo "Built $APP"
