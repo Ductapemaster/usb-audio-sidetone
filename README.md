@@ -6,7 +6,7 @@ Sidetone lets you hear your own voice through the headset while speaking, reduci
 
 ## How it works
 
-macOS's `AppleUSBAudio` driver exposes the headset's internal sidetone mixer as CoreAudio play-through controls (`kAudioDevicePropertyScopePlayThrough`). This app sets those controls directly — no root access, no kernel extensions, no USB packet injection required.
+macOS's `AppleUSBAudio` driver exposes the headset's internal sidetone mixer as CoreAudio play-through controls (`kAudioDevicePropertyScopePlayThrough`). This app sets those controls directly.
 
 **Device detection** is generic: any USB audio device that has both input and output streams and a settable play-through mute qualifies. Multiple devices are supported simultaneously.
 
@@ -14,18 +14,20 @@ macOS's `AppleUSBAudio` driver exposes the headset's internal sidetone mixer as 
 
 **Volume** is persisted per-device UID in `NSUserDefaults`, so each headset remembers its own level across launches and reconnects.
 
+The app can additionally be configured as a service to run on startup.
+
 ## Requirements
 
 - macOS 13 (Ventura) or later
-- A USB headset whose `AppleUSBAudio` driver exposes play-through controls (most USB headsets with a built-in microphone qualify)
+- A USB headset whose `AppleUSBAudio` driver exposes play-through controls (most USB headsets with a built-in microphone input qualify)
 
 ### Confirmed working hardware
 
-- C-Media CM6533 (VID `0x0D8C`, PID `0x0147`) — the reference device this was built and tested on
+- C-Media CM6533 (VID `0x0D8C`, PID `0x0147`), included in this [SABRENT USB-C audio adapter](https://www.amazon.com/dp/B0DGMVFY85)
 
 ## Build
 
-No Xcode required. From the project directory:
+From the project directory:
 
 ```bash
 ./build.sh
@@ -43,18 +45,13 @@ To have it launch at login, open the menu and enable **Launch at Login**. You ca
 
 Click the ear icon in the menu bar to open the menu. Each connected qualifying device appears with its name and a volume slider. The dB value shown is read back directly from the device.
 
-Dragging the slider to the far left silences sidetone without a separate mute toggle.
+To mute sidetone, simply drag the slider to the far left to silence.
 
 ## Technical notes
 
-### Play-through mute is inverted
+### Play-through mute polarity on the CM6533
 
-On the CM6533 (and likely other C-Media devices), the `kAudioDevicePropertyMute` property on `kAudioDevicePropertyScopePlayThrough` has **inverted semantics**:
-
-- `mute = 1` → sidetone **enabled**
-- `mute = 0` → sidetone **disabled**
-
-This is the opposite of what the property name implies and the opposite of what Apple's documentation suggests for other devices. If you are adapting this code for a different device, test both values empirically.
+The [USB Audio Class 1.0 specification](https://www.usb.org/sites/default/files/audio10.pdf) defines `bMute = 1` as muted (signal off) and `bMute = 0` as active (signal on). The CM6533's play-through (sidetone) Feature Unit has the opposite behavior: writing `mute = 1` via `kAudioDevicePropertyMute` on `kAudioDevicePropertyScopePlayThrough` **enables** sidetone, and `mute = 0` **disables** it. If you are adapting this code for a different device, verify empirically — the behavior may conform to the spec or invert it.
 
 ## Project structure
 
@@ -62,7 +59,7 @@ This is the opposite of what the property name implies and the opposite of what 
 AppDelegate.h / AppDelegate.m   — all app logic
 main.m                          — NSApplicationMain entry point
 Info.plist                      — LSUIElement=YES (menu bar only, no dock icon)
-build.sh                        — builds Sidetone.app without Xcode
+build.sh                        — builds Sidetone.app (Xcode not required)
 ```
 
 ## License
