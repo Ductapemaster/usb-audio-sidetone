@@ -25,27 +25,36 @@ The app can additionally be configured as a service to run on startup.
 
 - C-Media CM6533 (VID `0x0D8C`, PID `0x0147`), included in this [SABRENT USB-C audio adapter](https://www.amazon.com/dp/B0DGMVFY85)
 
-## Build
+## Build and install
 
-From the project directory:
+Build from the project directory:
 
 ```bash
 ./build.sh
 ```
 
-This produces `Sidetone.app` in the current directory. Open it with:
+This produces `Sidetone.app` in the current directory. Copy it to `/Applications` for a standard install:
 
 ```bash
-open Sidetone.app
+cp -r Sidetone.app /Applications/
+open /Applications/Sidetone.app
 ```
 
-To have it launch at login, open the menu and enable **Launch at Login** (uses [`SMAppService`](https://developer.apple.com/documentation/servicemanagement/smappservice)). You can also manage it later from **System Settings → General → Login Items**.
+To update after rebuilding, quit the app first, then re-copy:
+
+```bash
+pkill Sidetone; cp -r Sidetone.app /Applications/
+```
+
+You can also run the app directly from the project directory without installing it to `/Applications`, but Launch at Login will only work reliably when the app is run from a stable path.
 
 ## Usage
 
 Click the ear icon in the menu bar to open the menu. Each connected qualifying device appears with its name and a volume slider. The dB value shown is read back directly from the device.
 
-To mute sidetone, simply drag the slider to the far left to silence.
+To mute sidetone, drag the slider to the far left.
+
+To have it launch at login, open the menu and enable **Launch at Login** (uses [`SMAppService`](https://developer.apple.com/documentation/servicemanagement/smappservice)). You can also manage it later from **System Settings → General → Login Items**.
 
 ## Technical notes
 
