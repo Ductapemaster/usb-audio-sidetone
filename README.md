@@ -6,13 +6,13 @@ Sidetone lets you hear your own voice through the headset while speaking, reduci
 
 ## How it works
 
-macOS's `AppleUSBAudio` driver exposes the headset's internal sidetone mixer as CoreAudio play-through controls (`kAudioDevicePropertyScopePlayThrough`). This app sets those controls directly.
+macOS's `AppleUSBAudio` driver exposes the headset's internal sidetone mixer as [CoreAudio](https://developer.apple.com/documentation/coreaudio) play-through controls (`kAudioDevicePropertyScopePlayThrough`). This app sets those controls directly.
 
 **Device detection** is generic: any USB audio device that has both input and output streams and a settable play-through mute qualifies. Multiple devices are supported simultaneously.
 
 **On every connect**, the app re-enables sidetone and restores your saved volume level. (The hardware mute resets to its default state on every USB power cycle.)
 
-**Volume** is persisted per-device UID in `NSUserDefaults`, so each headset remembers its own level across launches and reconnects.
+**Volume** is persisted per-device UID in [`NSUserDefaults`](https://developer.apple.com/documentation/foundation/nsuserdefaults), so each headset remembers its own level across launches and reconnects.
 
 The app can additionally be configured as a service to run on startup.
 
@@ -39,7 +39,7 @@ This produces `Sidetone.app` in the current directory. Open it with:
 open Sidetone.app
 ```
 
-To have it launch at login, open the menu and enable **Launch at Login**. You can also manage it later from **System Settings → General → Login Items**.
+To have it launch at login, open the menu and enable **Launch at Login** (uses [`SMAppService`](https://developer.apple.com/documentation/servicemanagement/smappservice)). You can also manage it later from **System Settings → General → Login Items**.
 
 ## Usage
 
